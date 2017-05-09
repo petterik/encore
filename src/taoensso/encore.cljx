@@ -43,7 +43,6 @@
    [clojure.set     :as set]
    [clojure.java.io :as io]
    [clojure.walk    :as walk :refer [macroexpand-all]]
-   [clojure.test    :as test :refer [is]]
    ;; [clojure.core.async    :as async]
    [clojure.tools.reader.edn :as edn]
    [taoensso.truss :as truss])
@@ -63,7 +62,6 @@
    ;; [cljs.core.async  :as async]
    [cljs.reader]
    [cljs.tools.reader.edn :as edn]
-   [cljs.test             :as test :refer-macros [is]]
    ;;[goog.crypt.base64 :as base64]
    [goog.object         :as gobj]
    [goog.string         :as gstr]
@@ -3220,27 +3218,8 @@
 
 ;;;; Testing utils
 
-(defmacro expect
-  ([             expr] `(is                        ~expr))
-  ([         val expr] `(is                (= ~val ~expr)))
-  ([bindings val expr] `(is (let ~bindings (= ~val ~expr)))))
-
-(comment
-  (expect-let [foo {:a :A}] :A (:a foo))
-  (expect (thrown? Exception "foo")))
-
 (defn- fixture-map->fn [{:keys [before after] :or {before 'do after 'do}}]
   `(fn [f#] (~before) (f#) (~after)))
-
-(defmacro use-fixtures "Cross-platform `test/use-fixtures`"
-  [fixture-type & fixtures]
-  (have? [:el #{:each :once}] fixture-type)
-  (have? map? :in fixtures)
-  `(if-cljs
-        (cljs.test/use-fixtures ~fixture-type ~@fixtures)
-     (clojure.test/use-fixtures ~fixture-type ~@(map fixture-map->fn fixtures))))
-
-(comment (use-fixtures :each {:before (fn []) :after (fn [])}))
 
 ;;;; DEPRECATED
 
@@ -3306,7 +3285,6 @@
   (defmacro have-in!      [a1 & an] `(taoensso.encore/have! ~a1 :in ~@an))
   (defmacro cond-throw    [& args]  `(taoensso.encore/cond!         ~@args))
   (defmacro catch-errors* [& args]  `(taoensso.encore/catching      ~@args))
-  (defmacro use-fixtures* [& args]  `(taoensso.encore/use-fixtures  ~@args))
   (defmacro nano-time*    [& args]  `(taoensso.encore/now-nano*     ~@args))
   (defmacro qbench        [& args]  `(taoensso.encore/quick-bench   ~@args))
   (defmacro catch-errors  [& body]
